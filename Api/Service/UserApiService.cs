@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -14,6 +15,7 @@ namespace Api.Service
         private const string UserEndpoint = "user";
         private const string LoginEndpoint = "login";
         private const string FindEndpoint = "find";
+        private const string AuthEndpoint = "auth";
         private readonly HttpClient _client;
 
         public UserApiService(HttpClient client)
@@ -34,7 +36,9 @@ namespace Api.Service
             var response = await _client.PostAsync(endpoint, ProceedPayload(payload));
             var message = JsonSerializer
                 .Deserialize<Dictionary<string, string>>(await response.Content.ReadAsStringAsync());
-            return message?["token"] == null ? string.Empty : message["token"];
+            if (message == null) return null;
+            account.Token = message["token"];
+            return message["token"] == null ? string.Empty : message["token"];
         }
 
         public async Task<Account> FindAccount(Account account)
@@ -56,6 +60,24 @@ namespace Api.Service
             }
 
             return null;
+        }
+
+        public async Task<string> AuthAccount(Account account)
+        {
+            var endpoint = $"api/{UserEndpoint}/{AuthEndpoint}";
+            _client.DefaultRequestHeaders
+                .Authorization = new AuthenticationHeaderValue("Bearer", account.Token);
+            var response = await _client.GetAsync(endpoint);
+            var dict = JsonSerializer
+                .Deserialize<Dictionary<string, string>>(await response.Content.ReadAsStringAsync());
+            try
+            {
+                return dict?["message"];
+            }
+            catch (KeyNotFoundException)
+            {
+                return dict?["token"];
+            }
         }
 
         private static StringContent ProceedPayload(string content)
