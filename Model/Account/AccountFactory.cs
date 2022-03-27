@@ -5,7 +5,7 @@ namespace Model.Account
 {
     public static class AccountFactory
     {
-        public static Account RegisteredUser()
+        public static Account RegisteredAccount()
         {
             return new Account
             {

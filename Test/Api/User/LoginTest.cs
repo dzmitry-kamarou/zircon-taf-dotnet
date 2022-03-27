@@ -19,7 +19,7 @@ namespace Test.Api.User
         [Fact, Trait("TestCase", "C15")]
         public async Task RegisteredUserRetrievesToken()
         {
-            var account = AccountFactory.RegisteredUser();
+            var account = AccountFactory.RegisteredAccount();
             var reason = $"Token generated for '{account.Email}' account";
             var token = await _service.LoginAccount(account);
             const string jwtPattern = "^[A-Za-z0-9-_=]+\\.[A-Za-z0-9-_=]+\\.?[A-Za-z0-9-_.+/=]*$";

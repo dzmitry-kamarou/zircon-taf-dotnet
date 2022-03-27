@@ -24,13 +24,14 @@ namespace Api.Service
 
         public async Task<string> LoginAccount(Account account)
         {
+            var endpoint = $"api/{UserEndpoint}/{LoginEndpoint}";
             var map = new Dictionary<string, object>
             {
                 {"email", account.Email},
                 {"password", account.Password}
             };
             var payload = JsonSerializer.Serialize(map);
-            var response = await _client.PostAsync($"api/{UserEndpoint}/{LoginEndpoint}", ProceedPayload(payload));
+            var response = await _client.PostAsync(endpoint, ProceedPayload(payload));
             var message = JsonSerializer
                 .Deserialize<Dictionary<string, string>>(await response.Content.ReadAsStringAsync());
             return message?["token"] == null ? string.Empty : message["token"];
@@ -38,15 +39,23 @@ namespace Api.Service
 
         public async Task<Account> FindAccount(Account account)
         {
-            var response = await _client.GetAsync($"api/{UserEndpoint}/{FindEndpoint}?email{account.Email}");
-            var messageDict = JsonSerializer
-                .Deserialize<Dictionary<string, string>>(await response.Content.ReadAsStringAsync());
-            if (messageDict != null && messageDict["message"].Equals("There is no such user"))
+            var endpoint = $"api/{UserEndpoint}/{FindEndpoint}?email={account.Email}";
+            var response = await _client.GetAsync(endpoint);
+            try
             {
-                return null;
+                var messageDict = JsonSerializer
+                    .Deserialize<Dictionary<string, string>>(await response.Content.ReadAsStringAsync());
+                if (messageDict != null && messageDict["message"].Equals("There is no such user"))
+                {
+                    return null;
+                }
+            }
+            catch (JsonException)
+            {
+                return JsonSerializer.Deserialize<Account>(await response.Content.ReadAsStringAsync());
             }
 
-            return new Account();
+            return null;
         }
 
         private static StringContent ProceedPayload(string content)
