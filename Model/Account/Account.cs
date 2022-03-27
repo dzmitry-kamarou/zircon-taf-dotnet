@@ -12,5 +12,8 @@ namespace Model.Account
         
         [JsonPropertyName("password")]
         public string Password { get; set; }
+        
+        [JsonPropertyName("token")]
+        public string Token { get; set; }
     }
 }
