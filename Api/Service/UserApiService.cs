@@ -13,6 +13,7 @@ namespace Api.Service
     {
         private const string UserEndpoint = "user";
         private const string LoginEndpoint = "login";
+        private const string FindEndpoint = "find";
         private readonly HttpClient _client;
 
         public UserApiService(HttpClient client)
@@ -33,6 +34,19 @@ namespace Api.Service
             var message = JsonSerializer
                 .Deserialize<Dictionary<string, string>>(await response.Content.ReadAsStringAsync());
             return message?["token"] == null ? string.Empty : message["token"];
+        }
+
+        public async Task<Account> FindAccount(Account account)
+        {
+            var response = await _client.GetAsync($"api/{UserEndpoint}/{FindEndpoint}?email{account.Email}");
+            var messageDict = JsonSerializer
+                .Deserialize<Dictionary<string, string>>(await response.Content.ReadAsStringAsync());
+            if (messageDict != null && messageDict["message"].Equals("There is no such user"))
+            {
+                return null;
+            }
+
+            return new Account();
         }
 
         private static StringContent ProceedPayload(string content)

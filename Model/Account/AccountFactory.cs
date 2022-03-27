@@ -1,4 +1,5 @@
-﻿using Commons;
+﻿using Bogus;
+using Commons;
 
 namespace Model.Account
 {
@@ -12,6 +13,14 @@ namespace Model.Account
                 Email = BusinessConfig.RegisteredUserEmail,
                 Password = BusinessConfig.RegisteredUserPassword
             };
+        }
+
+        public static Account RandomAccount()
+        {
+            return new Faker<Account>()
+                .RuleFor(p => p.Email, f => f.Internet.Email())
+                .RuleFor(p => p.Password, f => f.Internet.Password())
+                .Generate();
         }
     }
 }

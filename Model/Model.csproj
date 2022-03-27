@@ -8,4 +8,8 @@
     <ProjectReference Include="..\Commons\Commons.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Bogus" Version="34.0.1" />
+  </ItemGroup>
+
 </Project>
